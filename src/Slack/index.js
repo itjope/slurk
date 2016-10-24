@@ -90,17 +90,22 @@ const Slack = opt => {
       }).catch(err => console.log(err))
     }
   }
-  console.log('Rebuilding index...')
-  options.search.loadDocs().then(numberOfDocs => {
-    console.log(numberOfDocs, 'docs in index')
 
-    rtmClient.on(RTM_EVENTS.MESSAGE, handleMessageEvent)
-    rtmClient.start()
-    console.log('Bot is ready')
+  const start = () => {
+    console.log('Rebuilding index...')
+    options.search.loadDocs().then(numberOfDocs => {
+      console.log(`${numberOfDocs} docs in index.`)
 
-  }).catch(err => {
-    console.log('Falled to recreate index', err)
-  })
+      rtmClient.on(RTM_EVENTS.MESSAGE, handleMessageEvent)
+      rtmClient.start()
+    }).catch(err => {
+      console.log('Falled to recreate index', err)
+    })
+  }
+
+  return {
+    start: start
+  }
 }
 
 module.exports = Slack

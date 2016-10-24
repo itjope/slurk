@@ -1,3 +1,4 @@
+const figlet = require('figlet')
 const DataStore = require('./src/DataStore')
 const Search = require('./src/Search')
 const Slack = require('./src/Slack')
@@ -15,6 +16,11 @@ const slack = Slack({
   }),
   token: SLACK_API_TOKEN,
 })
+
+figlet('SLURK', (err, data) => {
+    console.log(data)
+    slack.start()
+});
 
 /*
 slack.on('ready', (e) => {
