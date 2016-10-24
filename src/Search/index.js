@@ -24,7 +24,6 @@ const Search = opt => {
     switch (type) {
       case 'elasticlunr':
         return Elasticlunr({
-          docs,
           docTemplate
         })
         break;

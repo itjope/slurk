@@ -98,7 +98,9 @@ const Slack = opt => {
     rtmClient.start()
     console.log('Bot is ready')
 
-  }).catch(err => console.log('Falled to recreate index', err))
+  }).catch(err => {
+    console.log('Falled to recreate index', err)
+  })
 }
 
 module.exports = Slack
