@@ -1,6 +1,18 @@
 const elasticlunr = require('elasticlunr')
 
-const Elasticlunr = (options) => {
+const Elasticlunr = (opt) => {
+  const options = Object.assign({
+    docTemplate: {},
+    boosts: {
+      fields: {
+          title: { boost: 4 },
+          urlParts: { boost: 3 },
+          service: { boost: 2 },
+          description: { boost: 1}
+      }
+    }
+  }, opt)
+
   const createIndex = (docTemplate) => {
     const ref = 'id'
     const index = elasticlunr()
@@ -18,7 +30,7 @@ const Elasticlunr = (options) => {
   const search = index => searchString => (
     new Promise((resolve, reject) => {
       try {
-        resolve(index.search(searchString) || [])
+        resolve(index.search(searchString, options.boosts) || [])
       } catch (e) {
         reject(e)
       }
