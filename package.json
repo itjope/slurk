@@ -1,12 +1,13 @@
 {
-  "name": "slackurl",
+  "name": "slurk",
   "version": "1.0.0",
   "description": "Index and search links posted in Slack",
   "main": "index.js",
   "dependencies": {
     "@slack/client": "^3.6.0",
     "elasticlunr": "^0.9.5",
-    "figlet": "^1.2.0"
+    "figlet": "^1.2.0",
+    "lodash.merge": "^4.6.0"
   },
   "devDependencies": {},
   "scripts": {
