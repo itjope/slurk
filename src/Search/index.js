@@ -35,7 +35,9 @@ const Search = opt => {
   const searchBackend = getSearchBackend(options.type, {}, docTemplate)
 
   const saveDoc = (dataStore, searchBackend) => (doc) => {
-    return dataStore.saveDoc(doc).then(searchBackend.saveDoc(doc))
+    return dataStore.saveDoc(doc).then(mergedDoc => {
+      return searchBackend.saveDoc(mergedDoc)
+    })
   }
 
   const search = (dataStore, searchBackend) => searchString => (

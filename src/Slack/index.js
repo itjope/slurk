@@ -1,6 +1,7 @@
 const RtmClient = require('@slack/client').RtmClient
 const WebClient = require('@slack/client').WebClient
 const RTM_EVENTS = require('@slack/client').RTM_EVENTS
+const RTM_CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS.RTM;
 const MemoryDataStore = require('@slack/client').MemoryDataStore
 
 const Slack = opt => {
@@ -17,6 +18,7 @@ const Slack = opt => {
   const webClient = new WebClient(options.token)
 
   const isURL = text => text && text.indexOf('<http') > -1
+
   const extractURLs = text => (
     text.match(/<(.+?)>/g)
       .map(url => url.replace(/<|>/g, ''))
@@ -33,21 +35,22 @@ const Slack = opt => {
       id: url,
       url: url,
       urlParts: url.replace('https://', '').replace('http://', '').split('.').join(', ').split('/').join(', '),
-      user: user ? user.name : null,
-      team: team ? team.name : null,
-      channel: channel ? channel.name : null,
+      user: user ? user.name : undefined,
+      team: team ? team.name : undefined,
+      channel: channel ? channel.name : undefined,
       timestamp: message.ts,
-      service: message.attachments ? message.attachments[0].service_name : null,
-      title: message.attachments ? message.attachments[0].title : null,
-      icon:  message.attachments ? message.attachments[0].service_icon : null,
-      description: message.attachments ? message.attachments[0].text : null
+      service: message.attachments ? message.attachments[0].service_name : undefined,
+      title: message.attachments ? message.attachments[0].title : undefined,
+      icon:  message.attachments ? message.attachments[0].service_icon : undefined,
+      description: message.attachments ? message.attachments[0].text : undefined
     }))
     return docs
   }
 
   const handleMessage = (message) => {
     const docs = messageToDocs(rtmClient.dataStore, message)
-    docs.forEach(options.search.saveDoc)
+    const saves = docs.map(options.search.saveDoc)
+    return Promise.all(saves)
   }
 
   const createAttachmentFromDoc = (doc) => ({
@@ -67,7 +70,7 @@ const Slack = opt => {
     }
     if (message.attachments.length < 1) {
       message.attachments = [{
-        "title": "No match"
+        "title": "Not found"
       }]
     }
     return message
@@ -75,13 +78,24 @@ const Slack = opt => {
 
   const isBotCommand = (text) => text && text.indexOf(`<@${rtmClient.activeUserId}>`) > -1
 
-  const handleMessageEvent = (m) => {
-    // console.log(JSON.stringify(m, null, 4))
+  const addReaction = (message) => {
+    const channel = message.channel
+    const timestamp = message.ts
+    if (channel && timestamp) {
+      webClient.reactions.add('white_check_mark', { channel, timestamp })
+    }
+  }
 
-    if (m.type === 'message' && m.subtype === 'message_changed' && isURL(m.message.text)) {
-      handleMessage(m.message)
-    } else if (m.type === 'message' && isURL(m.text)) {
-      handleMessage(m)
+  const handleMessageEvent = (m) => {
+
+    const message = m.subtype === 'message_changed' ? m.message : m
+
+    if (message.type === 'message' && isURL(message.text)) {
+      handleMessage(message).then(() => {
+        addReaction(message)
+        console.log()
+      })
+
     } else if (isBotCommand(m.text)){
       const searchString = extractBotCommand(m.text)
       options.search.search(searchString).then(docs => {
@@ -94,9 +108,11 @@ const Slack = opt => {
   const start = () => {
     console.log('Rebuilding index...')
     options.search.loadDocs().then(numberOfDocs => {
-      console.log(`${numberOfDocs} docs in index.`)
-
+      console.log(`Found ${numberOfDocs} docs.`)
       rtmClient.on(RTM_EVENTS.MESSAGE, handleMessageEvent)
+      rtmClient.on(RTM_CLIENT_EVENTS.RTM_CONNECTION_OPENED, () => {
+          console.log('Connected - Ready to slurk and search!')
+      })
       rtmClient.start()
     }).catch(err => {
       console.log('Falled to recreate index', err)

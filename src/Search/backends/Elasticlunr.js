@@ -5,10 +5,18 @@ const Elasticlunr = (opt) => {
     docTemplate: {},
     boosts: {
       fields: {
-          title: { boost: 4 },
-          urlParts: { boost: 3 },
-          service: { boost: 2 },
-          description: { boost: 1}
+        title: { boost: 4 },
+        urlParts: { boost: 3 },
+        service: { boost: 1, bool: 'AND' },
+        description: { boost: 2},
+        user: { boost: 1, bool: 'AND' }
+      }
+    },
+    exclude: {
+      fields: {
+        timestamp: true,
+        icon: true,
+        channel: true
       }
     }
   }, opt)
@@ -17,9 +25,12 @@ const Elasticlunr = (opt) => {
     const ref = 'id'
     const index = elasticlunr()
     index.setRef(ref)
-    Object.keys(docTemplate).filter(key => key !== ref).forEach(key => {
-      index.addField(key)
-    })
+    Object.keys(docTemplate)
+      .filter(key => key !== ref && !options.exclude.fields[key])
+      .forEach(key => {
+        console.log('addField', key)
+        index.addField(key)
+      })
     return index
   }
 

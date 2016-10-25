@@ -1,4 +1,5 @@
 const fs = require('fs')
+const merge = require('lodash.merge')
 
 const File = options => {
 
@@ -17,8 +18,11 @@ const File = options => {
 
   const saveDoc = (path, state, persist) => doc => {
     const id = doc.id
-    state.docs[id] = Object.assign({}, state.docs[id], doc)
-    return persist(state.docs, path)
+    const mergedDoc = merge({}, state.docs[id], doc)
+    state.docs[id] = mergedDoc
+    return persist(state.docs, path).then(() => {
+      return mergedDoc
+    })
   }
 
   const docsToArray = docs => (
@@ -36,7 +40,7 @@ const File = options => {
           state.docs = JSON.parse(data)
           resolve(docsToArray(state.docs))
         } catch (e) {
-          reject(`Failed to parse JSON at ${path}`)
+          resolve([])
         }
       })
     })
