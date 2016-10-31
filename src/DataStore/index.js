@@ -3,7 +3,7 @@ const File = require('./backends/File')
 const DataStore = (opt) => {
   const options = Object.assign({
     type: 'file',
-    path: 'db.json'
+    path: null
   }, opt)
 
   const getBackend = type => {

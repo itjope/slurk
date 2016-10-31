@@ -34,14 +34,11 @@ const File = options => {
 
   const getAllDocs = (path, state) => () => (
     new Promise((resolve, reject) => {
+      console.log('reading database file from: ', path)
       fs.readFile(path, (err, data) => {
         if (err) reject(err)
-        try {
-          state.docs = JSON.parse(data)
-          resolve(docsToArray(state.docs))
-        } catch (e) {
-          resolve([])
-        }
+        state.docs = JSON.parse(data)
+        resolve(docsToArray(state.docs))
       })
     })
   )
@@ -51,6 +48,14 @@ const File = options => {
       resolve(ids.map(id => state.docs[id]))
     })
   )
+
+  const createFileIfNotExists = (file) => {
+    if (!fs.existsSync(file)) {
+      fs.writeFileSync(file, '{}')
+    }
+  }
+
+  createFileIfNotExists(options.path)
 
   return {
     saveDoc: saveDoc(options.path, state, saveDocsToDisk),

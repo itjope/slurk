@@ -1,10 +1,10 @@
 const figlet = require('figlet')
-const DataStore = require('./src/DataStore')
-const Search = require('./src/Search')
-const Slack = require('./src/Slack')
+const DataStore = require('./DataStore')
+const Search = require('./Search')
+const Slack = require('./Slack')
 
 const SLACK_API_TOKEN = process.env.SLACK_API_TOKEN
-const DB_FILE_PATH = process.env.DB_FILE_PATH || 'db.json'
+const DB_FILE_PATH = process.env.DB_FILE_PATH
 
 const slack = Slack({
   search: Search({

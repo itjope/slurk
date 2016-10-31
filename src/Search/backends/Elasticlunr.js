@@ -28,7 +28,6 @@ const Elasticlunr = (opt) => {
     Object.keys(docTemplate)
       .filter(key => key !== ref && !options.exclude.fields[key])
       .forEach(key => {
-        console.log('addField', key)
         index.addField(key)
       })
     return index
