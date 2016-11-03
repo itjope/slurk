@@ -21,9 +21,12 @@ const Slack = opt => {
 
   const extractURLs = text => (
     text.match(/<(.+?)>/g)
+      .filter(isURL)
       .map(url => url.replace(/<|>/g, ''))
       .map(url => url.split('|')[0])
   )
+
+  const getURLParts = url => url.replace('https://', '').replace('http://', '').split('.').join(', ').split('/').join(', ')
 
   const extractBotCommand = text => text.replace(/<(.+?)>/g, '')
 
@@ -34,7 +37,7 @@ const Slack = opt => {
     const docs = extractURLs(message.text).map(url => ({
       id: url,
       url: url,
-      urlParts: url.replace('https://', '').replace('http://', '').split('.').join(', ').split('/').join(', '),
+      urlParts: getURLParts(url),
       user: user ? user.name : undefined,
       team: team ? team.name : undefined,
       channel: channel ? channel.name : undefined,
@@ -78,6 +81,8 @@ const Slack = opt => {
 
   const isBotCommand = (text) => text && text.indexOf(`<@${rtmClient.activeUserId}>`) > -1
 
+  const isMessageFromSlurk = (message) => message.user === rtmClient.activeUserId
+
   const addReaction = (message) => {
     const channel = message.channel
     const timestamp = message.ts
@@ -89,14 +94,15 @@ const Slack = opt => {
   const handleMessageEvent = (m) => {
 
     const message = m.subtype === 'message_changed' ? m.message : m
-
-    if (message.type === 'message' && isURL(message.text)) {
+    if (isMessageFromSlurk(message)) {
+      console.log('Message from Slurk - Do nothing')
+    } else if (message.type === 'message' && isURL(message.text)) {
       handleMessage(message).then(() => {
         addReaction(message)
-        console.log()
+        console.log('Saved/updated message', message.text)
       })
-
     } else if (isBotCommand(m.text)){
+      console.log('Searching for: ', m.text)
       const searchString = extractBotCommand(m.text)
       options.search.search(searchString).then(docs => {
         const responseMessage = createResponse(docs)
