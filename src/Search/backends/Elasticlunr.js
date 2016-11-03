@@ -5,7 +5,8 @@ const Elasticlunr = (opt) => {
     docTemplate: {},
     boosts: {
       fields: {
-        title: { boost: 4 },
+        title: { boost: 5 },
+        text: { boost: 4 },
         urlParts: { boost: 3 },
         service: { boost: 1, bool: 'AND' },
         description: { boost: 2},

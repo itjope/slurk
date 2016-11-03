@@ -30,6 +30,8 @@ const Slack = opt => {
 
   const extractBotCommand = text => text.replace(/<(.+?)>/g, '')
 
+  const removeURL = text => text.replace(/<(.+?)>/g, '')
+
   const messageToDocs = (dataStore, message) => {
     const user = dataStore.getUserById(message.user)
     const team = dataStore.getTeamById(message.team)
@@ -44,6 +46,7 @@ const Slack = opt => {
       timestamp: message.ts,
       service: message.attachments ? message.attachments[0].service_name : undefined,
       title: message.attachments ? message.attachments[0].title : undefined,
+      text: message.text ? removeURL(message.text) : undefined,
       icon:  message.attachments ? message.attachments[0].service_icon : undefined,
       description: message.attachments ? message.attachments[0].text : undefined
     }))
@@ -62,7 +65,7 @@ const Slack = opt => {
     "text": doc.description,
     "author_name": doc.service,
     "author_icon": doc.icon,
-    "footer": doc.user,
+    "footer": `@${doc.user} ${doc.text}`,
     "ts": doc.timestamp
   })
 

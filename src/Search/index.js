@@ -17,7 +17,8 @@ const Search = opt => {
     service: null,
     title: null,
     icon: null,
-    description: null
+    description: null,
+    text: null
   }
 
   const getSearchBackend = (type, docs, docTemplate) => {
