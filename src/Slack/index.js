@@ -65,7 +65,7 @@ const Slack = opt => {
     "text": doc.description,
     "author_name": doc.service,
     "author_icon": doc.icon,
-    "footer": `@${doc.user} ${doc.text}`,
+    "footer": `@${doc.user} ${doc.text || ' '}`,
     "ts": doc.timestamp
   })
 
