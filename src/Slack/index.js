@@ -53,40 +53,40 @@ const Slack = opt => {
     return docs
   }
 
-  const handleMessage = (message) => {
+  const handleMessage = message => {
     const docs = messageToDocs(rtmClient.dataStore, message)
     const saves = docs.map(options.search.saveDoc)
     return Promise.all(saves)
   }
 
-  const createAttachmentFromDoc = (doc) => ({
-    "fallback": doc.url,
-    "title": doc.url,
-    "text": doc.description,
-    "author_name": doc.service,
-    "author_icon": doc.icon,
-    "footer": `@${doc.user} ${doc.text || ' '}`,
-    "ts": doc.timestamp
+  const createAttachmentFromDoc = doc => ({
+    'fallback': doc.url,
+    'title': doc.url,
+    'text': doc.description,
+    'author_name': doc.service,
+    'author_icon': doc.icon,
+    'footer': `@${doc.user} ${doc.text || ' '}`,
+    'ts': doc.timestamp
   })
 
-  const createResponse = (docs) => {
+  const createResponse = docs => {
     const message = {
       username: 'Slurk',
       attachments: docs.map(createAttachmentFromDoc)
     }
     if (message.attachments.length < 1) {
       message.attachments = [{
-        "title": "Not found"
+        'title': 'Not found'
       }]
     }
     return message
   }
 
-  const isBotCommand = (text) => text && text.indexOf(`<@${rtmClient.activeUserId}>`) > -1
+  const isBotCommand = text => text && text.indexOf(`<@${rtmClient.activeUserId}>`) > -1
 
-  const isMessageFromSlurk = (message) => message.user === rtmClient.activeUserId
+  const isMessageFromSlurk = message => message.user === rtmClient.activeUserId
 
-  const addReaction = (message) => {
+  const addReaction = message => {
     const channel = message.channel
     const timestamp = message.ts
     if (channel && timestamp) {
@@ -94,23 +94,28 @@ const Slack = opt => {
     }
   }
 
-  const handleMessageEvent = (m) => {
-
+  const handleMessageEvent = m => {
     const message = m.subtype === 'message_changed' ? m.message : m
     if (isMessageFromSlurk(message)) {
       console.log('Message from Slurk - Do nothing')
-    } else if (message.type === 'message' && isURL(message.text)) {
+      return
+    }
+
+    if (message.type === 'message' && isURL(message.text)) {
       handleMessage(message).then(() => {
         addReaction(message)
         console.log('Saved/updated message', message.text)
       })
-    } else if (isBotCommand(m.text)){
+      return
+    }
+
+    if (isBotCommand(m.text)){
       console.log('Searching for: ', m.text)
       const searchString = extractBotCommand(m.text)
       options.search.search(searchString).then(docs => {
-        const responseMessage = createResponse(docs)
-        webClient.chat.postMessage(m.channel, `Search results for _${searchString}_`, responseMessage)
+        webClient.chat.postMessage(m.channel, `Search results for _${searchString}_`, createResponse(docs))
       }).catch(err => console.log(err))
+      return
     }
   }
 

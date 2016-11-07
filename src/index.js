@@ -20,11 +20,4 @@ const slack = Slack({
 figlet('SLURK', (err, data) => {
     console.log(data)
     slack.start()
-});
-
-/*
-slack.on('ready', (e) => {
-  console.log(`${e.botName} is ready to eat ${e.team}'s URLs!`)
-  console.log(`Send a message to me, '@${e.botName} your search string', to search indexed URLs`)
 })
-*/

@@ -1,6 +1,6 @@
 const File = require('./backends/File')
 
-const DataStore = (opt) => {
+const DataStore = opt => {
   const options = Object.assign({
     type: 'file',
     path: null

@@ -22,15 +22,13 @@ const Elasticlunr = (opt) => {
     }
   }, opt)
 
-  const createIndex = (docTemplate) => {
+  const createIndex = docTemplate => {
     const ref = 'id'
     const index = elasticlunr()
     index.setRef(ref)
     Object.keys(docTemplate)
       .filter(key => key !== ref && !options.exclude.fields[key])
-      .forEach(key => {
-        index.addField(key)
-      })
+      .forEach(key => index.addField(key))
     return index
   }
 
@@ -58,18 +56,16 @@ const Elasticlunr = (opt) => {
     })
   )
 
-  const loadDocs = index => docs => {
-    return new Promise((resolve, reject) => {
+  const loadDocs = index => docs => (
+    new Promise((resolve, reject) => {
       try {
-        docs.forEach(doc => {
-          index.addDoc(doc)
-        })
+        docs.forEach(doc => index.addDoc(doc))
         resolve(docs.length)
       } catch (e) {
         reject(e)
       }
     })
-  }
+  )
 
   return {
     search: search(state.index),
