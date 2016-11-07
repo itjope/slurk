@@ -7,9 +7,9 @@ URL:s and "[unfurled](https://api.slack.com/docs/message-attachments#unfurling)"
 
 Usage
 ------
-* Paste an URL to a channel where Slurk is active.
+* Paste an URL to a channel where Slurk is active, or to Slurk directly.
 * Wait for Slurk to mark your message with a :white_check_mark:.
-* Search by mention bot name followed with a search string. Example `@slurk software`.
+* Search by mention bot name followed with a search string. Example `@slurk github`.
 
 Searchable fields:
 * Message text
