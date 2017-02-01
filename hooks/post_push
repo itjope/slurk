@@ -1,4 +1,4 @@
 #!/bin/bash
-env
+SOURCE_COMMIT=`echo $GIT_SHA1|cut -c-7`
 docker tag $IMAGE_NAME $DOCKER_REPO:$SOURCE_COMMIT
 docker push $DOCKER_REPO:$SOURCE_COMMIT
